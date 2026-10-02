@@ -1,19 +1,14 @@
-/OeH-Prague-Trip-Guide.html
-  Content-Disposition: attachment; filename="OeH-Prague-Trip-Guide.html"
-  Cache-Control: no-cache
 /OeH-Prague-Trip-Guide
   Content-Disposition: attachment; filename="OeH-Prague-Trip-Guide.html"
+  Cache-Control: no-cache
+/
   Cache-Control: no-cache
 /organiser
   Cache-Control: no-cache
   X-Robots-Tag: noindex
-/index.html
-  Cache-Control: no-cache
-/
-  Cache-Control: no-cache
 /sw.js
   Cache-Control: no-cache
-/organiser.html
-  Cache-Control: no-cache
-/organiser.html
-  X-Robots-Tag: noindex
+/version.json
+  Cache-Control: no-store
+/img/*
+  Cache-Control: public, max-age=31536000, immutable
