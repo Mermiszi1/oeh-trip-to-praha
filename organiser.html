@@ -67,6 +67,10 @@ input:focus,textarea:focus{outline:none;border-color:var(--navy)}
 .ibtn[disabled]{opacity:.35}
 .crow{display:flex;gap:6px;align-items:center;margin-bottom:8px}
 .crow input{flex:1 1 auto;min-width:0}
+.savebar{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:#DCE2F0}
+.savebar button{min-height:36px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.5);background:transparent;color:#fff;font-weight:700;font-size:13px;cursor:pointer}
+.savebar.bad{color:#FFD7D2}.savebar.bad button{background:#B42318;border-color:#B42318}
+.savebar.ok #saveState::before{content:"✓ ";color:#7CE0A0;font-weight:700}
 [hidden]{display:none!important}
 </style>
 <script src="/lib/jszip.min.js"></script>
@@ -81,6 +85,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--navy)}
 <button type="button" class="tab" data-tab="rooms" aria-selected="false">Rooms</button>
 <button type="button" class="tab" data-tab="share" aria-selected="false">Share &amp; backup</button>
 </div>
+<div class="savebar" id="saveBar" hidden><span id="saveState">Not saved yet</span><button type="button" id="saveNow">Save now</button></div>
 <div id="hcTop" hidden>
 <div class="cps" id="cps" role="group" aria-label="Which count"></div>
 <div class="count"><b id="cnt">0/0</b><div class="bar"><i id="bar"></i></div><span id="cntTxt"></span></div>
@@ -106,11 +111,11 @@ input:focus,textarea:focus{outline:none;border-color:var(--navy)}
 <button type="button" class="tbtn" id="onlyMissing" aria-pressed="false">Missing only</button>
 </div>
 <div class="list" id="list"></div>
-<details class="card"><summary>Add people</summary>
+<details class="card" id="addBox"><summary>Add people</summary>
 <div class="row"><input id="one" type="text" placeholder="Full name" aria-label="Full name"><button type="button" class="tbtn pri" id="addOne">Add</button></div>
-<p class="msg">Or paste many names, one per line:</p>
+<p class="msg">Or paste many names (one per line), or upload an Excel/CSV list (names in the first column, or a column called "Name"). Everything is saved automatically.</p>
 <textarea id="many" placeholder="Anna Kovács&#10;Lena Huber"></textarea>
-<div class="row"><button type="button" class="tbtn pri" id="addMany">Add all</button><button type="button" class="tbtn" id="fromRooms">Add everyone from the room list</button></div>
+<div class="row"><button type="button" class="tbtn pri" id="addMany">Add all</button><label class="tbtn filebtn">Upload Excel / CSV<input type="file" id="peopleFile" accept=".xlsx,.xls,.csv,.txt"></label><button type="button" class="tbtn" id="fromRooms">Add everyone from the room list</button></div>
 <div class="msg" id="addMsg"></div>
 </details>
 <details class="card" id="countsBox"><summary>Manage counts (main events)</summary>
@@ -172,10 +177,31 @@ input:focus,textarea:focus{outline:none;border-color:var(--navy)}
   var DEFAULT=[{id:'bus1',label:'Sat 05:45 · Bus Krems'},{id:'tour1',label:'Sat 12:00 · Tour 1'},{id:'tour2',label:'Sat ~16:00 · Tour 2 Castle'},{id:'checkin',label:'Sat 18:00+ · Check-in'},{id:'bus2',label:'Sun 16:30 · Bus Prague'}];
   var HEADERS="/OeH-Prague-Trip-Guide.html\n  Content-Disposition: attachment; filename=\"OeH-Prague-Trip-Guide.html\"\n  Cache-Control: no-cache\n/OeH-Prague-Trip-Guide\n  Content-Disposition: attachment; filename=\"OeH-Prague-Trip-Guide.html\"\n  Cache-Control: no-cache\n/organiser\n  Cache-Control: no-cache\n  X-Robots-Tag: noindex\n/index.html\n  Cache-Control: no-cache\n/\n  Cache-Control: no-cache\n/sw.js\n  Cache-Control: no-cache\n/organiser.html\n  Cache-Control: no-cache\n/organiser.html\n  X-Robots-Tag: noindex\n";
   var MANIFEST="{\n \"name\": \"\u00d6H Prague Trip Guide\",\n \"short_name\": \"\u00d6H Prague\",\n \"start_url\": \"/\",\n \"scope\": \"/\",\n \"display\": \"standalone\",\n \"background_color\": \"#1E2C66\",\n \"theme_color\": \"#1E2C66\",\n \"description\": \"\u00d6H IMC Krems trip to Prague, 10\u201311 October 2026\",\n \"icons\": [\n  {\n   \"src\": \"/icons/icon-192.png\",\n   \"sizes\": \"192x192\",\n   \"type\": \"image/png\"\n  },\n  {\n   \"src\": \"/icons/icon-512.png\",\n   \"sizes\": \"512x512\",\n   \"type\": \"image/png\"\n  },\n  {\n   \"src\": \"/icons/icon-512-maskable.png\",\n   \"sizes\": \"512x512\",\n   \"type\": \"image/png\",\n   \"purpose\": \"maskable\"\n  }\n ]\n}";
-  function load(){try{var d=JSON.parse(localStorage.getItem(KEY)||'null');if(d&&d.people)return d;}catch(e){}return {people:[],counts:DEFAULT.slice(),checks:{},rooms:[],roomsT:0,cur:'bus1'};}
-  var S=load();
-  function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){alertBox('Could not save on this device (storage full or blocked).');}}
+  function blank(){return {people:[],counts:DEFAULT.slice(),checks:{},rooms:[],roomsT:0,cur:'bus1',savedAt:0};}
+  function valid(d){return d&&Array.isArray(d.people)&&Array.isArray(d.counts);}
+  function load(){try{var d=JSON.parse(localStorage.getItem(KEY)||'null');if(valid(d))return d;}catch(e){}return blank();}
+  var S=load(), lsOK=true, idb=null;
+  /* second copy in IndexedDB: survives when a browser clears or blocks localStorage */
+  function idbOpen(){return new Promise(function(res){try{if(!window.indexedDB)return res(null);var rq=indexedDB.open('oeh-org',1);
+    rq.onupgradeneeded=function(){rq.result.createObjectStore('kv');};rq.onsuccess=function(){res(rq.result);};rq.onerror=function(){res(null);};}catch(e){res(null);}});}
+  function idbPut(v){if(!idb)return;try{idb.transaction('kv','readwrite').objectStore('kv').put(v,KEY);}catch(e){}}
+  function idbGet(){return new Promise(function(res){if(!idb)return res(null);try{var rq=idb.transaction('kv').objectStore('kv').get(KEY);rq.onsuccess=function(){res(rq.result||null);};rq.onerror=function(){res(null);};}catch(e){res(null);}});}
+  function stamp(){var bar=$('saveBar'),st=$('saveState');if(!bar)return;
+    if(!lsOK&&!idb){bar.className='savebar bad';st.textContent='This browser is not saving! Use Safari/Chrome (not private mode or an in-app browser).';return;}
+    bar.className='savebar ok';st.textContent=S.savedAt?'Saved on this phone · '+new Date(S.savedAt).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):'Saved on this phone';}
+  function save(){S.savedAt=Date.now();var txt=JSON.stringify(S);
+    try{localStorage.setItem(KEY,txt);lsOK=localStorage.getItem(KEY)===txt;}catch(e){lsOK=false;}
+    idbPut(txt);stamp();}
+  try{var tk='oeh-org-test';localStorage.setItem(tk,'1');localStorage.removeItem(tk);}catch(e){lsOK=false;}
+  try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});}catch(e){}
+  idbOpen().then(function(db){idb=db;return idbGet();}).then(function(txt){
+    try{var d=txt?JSON.parse(txt):null;
+      if(valid(d)&&(d.savedAt||0)>(S.savedAt||0)){S=d;try{localStorage.setItem(KEY,txt);}catch(e){} if(window.aoRefresh)window.aoRefresh();}
+      else if(S.savedAt)idbPut(JSON.stringify(S));}catch(e){}
+    stamp();});
   function alertBox(t){var m=$('cmsg')||$('addMsg');if(m)m.textContent=t;}
+  function readText(f){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result);};r.onerror=rej;r.readAsText(f);});}
+  function readBuf(f){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result);};r.onerror=rej;r.readAsArrayBuffer(f);});}
   function norm(t){return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();}
   function clean(t){return String(t==null?'':t).replace(/\s+/g,' ').trim();}
   function esc(t){var d=document.createElement('div');d.textContent=t;return d.innerHTML;}
@@ -196,8 +222,8 @@ input:focus,textarea:focus{outline:none;border-color:var(--navy)}
     for(i=0;i<8;i++)for(jj=3;jj+1;jj--){var b=(hash[i]>>(jj*8))&255;res+=((b<16)?0:'')+b.toString(16);}return res;}
   function pwHash(p){return sha256(unescape(encodeURIComponent('oeh-prague|'+p.trim())));}
   function authed(){try{return localStorage.getItem(AUTH)===PWHASH;}catch(e){return false;}}
-  function showPin(){$('pinBox').hidden=false;$('tabs').hidden=true;$('hcTop').hidden=true;['hcTab','roomsTab','shareTab'].forEach(function(t){$(t).hidden=true;});$('pin').value='';$('pinMsg').textContent='';setTimeout(function(){$('pin').focus();},60);}
-  function unlock(){$('pinBox').hidden=true;$('tabs').hidden=false;go(tab);}
+  function showPin(){$('pinBox').hidden=false;$('tabs').hidden=true;$('hcTop').hidden=true;if($('saveBar'))$('saveBar').hidden=true;['hcTab','roomsTab','shareTab'].forEach(function(t){$(t).hidden=true;});$('pin').value='';$('pinMsg').textContent='';setTimeout(function(){$('pin').focus();},60);}
+  function unlock(){$('pinBox').hidden=true;$('tabs').hidden=false;$('saveBar').hidden=false;stamp();go(tab);}
   $('showPw').addEventListener('change',function(){$('pin').type=this.checked?'text':'password';});
   $('pinGo').addEventListener('click',function(){
     var p=$('pin').value; if(!p.trim()){$('pinMsg').textContent='Enter the organiser password.';return;}
@@ -267,6 +293,18 @@ input:focus,textarea:focus{outline:none;border-color:var(--navy)}
   $('addOne').addEventListener('click',function(){if(clean($('one').value)){addNames([$('one').value]);$('one').value='';}});
   $('one').addEventListener('keydown',function(e){if(e.key==='Enter')$('addOne').click();});
   $('addMany').addEventListener('click',function(){addNames($('many').value.split(/\r?\n|;/));$('many').value='';});
+  $('peopleFile').addEventListener('change',function(){var f=this.files&&this.files[0],inp=this;if(!f)return;
+    function fromRowsNames(rows){if(!rows.length)return [];var hdr=rows[0].map(function(x){return norm(x);}),col=hdr.findIndex(function(h){return /^(name|full name|participant|student|teilnehmer|nev|név)/.test(h);});
+      var start=col>=0?1:0;if(col<0)col=0;var out=[];
+      for(var i=start;i<rows.length;i++){var r=rows[i];var n=clean(r[col]);
+        if(col===0&&r.length>1&&/^(first|vorname)/.test(hdr[0]||'')){n=clean(r[0]+' '+r[1]);}
+        if(n)out.push(n);}return out;}
+    if(/\.(xlsx|xls)$/i.test(f.name)){
+      if(!window.XLSX){$('addMsg').textContent='Excel reader not loaded. Save the file as CSV, or paste the names.';return;}
+      readBuf(f).then(function(buf){var wb=XLSX.read(buf,{type:'array'});addNames(fromRowsNames(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''})));})
+        .catch(function(){$('addMsg').textContent='That file could not be read. Try CSV or paste the names.';});
+    }else readText(f).then(function(t){var d=/\t/.test(t)?'\t':(/;/.test(t)?';':',');addNames(fromRowsNames(t.split(/\r?\n/).filter(function(l){return l.trim();}).map(function(l){return l.split(d);})));});
+    inp.value='';});
   $('fromRooms').addEventListener('click',function(){var n=[];S.rooms.forEach(function(r){n=n.concat(r.people);});if(!n.length){$('addMsg').textContent='Save a room list first (Rooms tab).';return;}addNames(n);});
   $('addCount').addEventListener('click',function(){var v=clean($('newCount').value);if(!v)return;var id='c'+Date.now().toString(36);S.counts.push({id:id,label:v});S.cur=id;$('newCount').value='';save();render();});
   $('newCount').addEventListener('keydown',function(e){if(e.key==='Enter')$('addCount').click();});
@@ -291,15 +329,17 @@ input:focus,textarea:focus{outline:none;border-color:var(--navy)}
     if(!parsed.length){$('roomSave').disabled=true;$('roomStatus').innerHTML='Nothing recognised yet. Use one line per room, like <b>Room 12: Anna, Lena</b>.';return;}
     $('roomStatus').innerHTML=summary(parsed)+' ready to save:<br>'+parsed.map(function(r){return '<b>'+esc(r.room)+'</b>: '+esc(r.people.join(', '));}).join('<br>');$('roomSave').disabled=false;}
   $('roomPreview').addEventListener('click',preview);
+  $('roomText').addEventListener('blur',function(){var p=fromText($('roomText').value);if(p.length&&JSON.stringify(p)!==JSON.stringify(S.rooms)){parsed=p;autoSaveRooms();}});
   $('roomText').addEventListener('input',function(){$('roomSave').disabled=true;});
   $('roomSave').addEventListener('click',function(){if(!parsed||!parsed.length)return;S.rooms=parsed;S.roomsT=Date.now();save();this.disabled=true;$('roomStatus').innerHTML='Saved: '+summary(S.rooms)+'. Next: download the website update below.';});
   $('roomFile').addEventListener('change',function(){var f=this.files&&this.files[0],inp=this;if(!f)return;
     if(/\.(xlsx|xls)$/i.test(f.name)){
       if(!window.XLSX){$('roomStatus').textContent='Excel reader not loaded. Save the file as CSV, or paste the list.';return;}
-      f.arrayBuffer().then(function(buf){var wb=XLSX.read(buf,{type:'array'});var rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});$('roomText').value=toText(fromRows(rows));preview();})
+      readBuf(f).then(function(buf){var wb=XLSX.read(buf,{type:'array'});var rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});$('roomText').value=toText(fromRows(rows));preview();autoSaveRooms();})
       .catch(function(){$('roomStatus').textContent='That file could not be read. Try CSV or paste the list.';});
-    }else f.text().then(function(t){$('roomText').value=toText(fromText(t));preview();});
+    }else readText(f).then(function(t){$('roomText').value=toText(fromText(t));preview();autoSaveRooms();});
     inp.value='';});
+  function autoSaveRooms(){if(parsed&&parsed.length){S.rooms=parsed;S.roomsT=Date.now();save();$('roomSave').disabled=true;$('roomStatus').innerHTML='Saved automatically: '+summary(S.rooms)+'. Next: download the website update below.';}}
   function roomsHTML(rs){function e(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');}
     if(!rs||!rs.length)return '<p class="rs-empty">The room list is coming soon.</p>';
     return '<ul class="rstatic">'+rs.map(function(r){return '<li><b>'+e(r.room)+'</b>: '+e((r.people||[]).join(', '))+'</li>';}).join('')+'</ul>';}
@@ -327,6 +367,10 @@ input:focus,textarea:focus{outline:none;border-color:var(--navy)}
       setTimeout(function(){a.remove();URL.revokeObjectURL(url);},5000);
       st.innerHTML='Downloaded <b>oeh-prague-trip-site.zip</b>'+(S.rooms.length?' with '+summary(S.rooms):' (no room list saved yet)')+'. Upload it in Cloudflare as a new deployment.';
     }).catch(function(e){st.textContent='Could not build the zip ('+((e&&e.code)||'error')+'). Open this page once with internet, then try again.';}).then(function(){b.disabled=false;});});
+  $('saveNow').addEventListener('click',function(){save();var b=this;b.textContent='Saved ✓';setTimeout(function(){b.textContent='Save now';},1500);});
+  window.aoRefresh=function(){render();showSaved();};
+  window.addEventListener('pagehide',function(){try{save();}catch(e){}});
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'){try{save();}catch(e){}}});
   /* ---------- share / backup ---------- */
   function pack(){return 'OEH1:'+btoa(unescape(encodeURIComponent(JSON.stringify({people:S.people,counts:S.counts,checks:S.checks,rooms:S.rooms,roomsT:S.roomsT}))));}
   function makeCode(){$('codeOut').value=pack();}
@@ -350,7 +394,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--navy)}
   $('importBtn').addEventListener('click',function(){try{$('impMsg').textContent=merge(unpack($('codeIn').value));$('codeIn').value='';showSaved();render();}catch(e){$('impMsg').textContent='That doesn’t look like a share code. Copy the whole message starting with OEH1:';}});
   $('backupBtn').addEventListener('click',function(){var blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
     a.href=url;a.download='oeh-prague-organiser-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(url);},4000);$('bkMsg').textContent='Backup saved to your downloads.';});
-  $('backupIn').addEventListener('change',function(){var f=this.files&&this.files[0];if(!f)return;f.text().then(function(t){try{$('bkMsg').textContent=merge(JSON.parse(t));showSaved();render();}catch(e){$('bkMsg').textContent='That file is not an organiser backup.';}});this.value='';});
+  $('backupIn').addEventListener('change',function(){var f=this.files&&this.files[0];if(!f)return;readText(f).then(function(t){try{$('bkMsg').textContent=merge(JSON.parse(t));showSaved();render();}catch(e){$('bkMsg').textContent='That file is not an organiser backup.';}});this.value='';});
   /* ---------- start ---------- */
   showSaved();
   if(authed())unlock();else showPin();

@@ -1,5 +1,5 @@
 /* ÖH Prague guide: works offline, always fetches the newest version when online */
-const CACHE='oeh-prague-202610021928';
+const CACHE='oeh-prague-202610022007';
 const FILES=['/','/organiser','/OeH-Prague-Trip-Guide','/manifest.webmanifest','/favicon.png','/icons/apple-touch-icon.png','/icons/icon-192.png','/icons/icon-512.png','/icons/icon-512-maskable.png','/lib/jszip.min.js','/lib/xlsx.mini.min.js'];
 const clean=res=>res&&res.redirected?res.blob().then(b=>new Response(b,{status:200,statusText:'OK',headers:res.headers})):Promise.resolve(res);
 const alias=u=>{const p=new URL(u).pathname;return p==='/index.html'?'/':p==='/organiser.html'?'/organiser':p==='/OeH-Prague-Trip-Guide.html'?'/OeH-Prague-Trip-Guide':p;};
