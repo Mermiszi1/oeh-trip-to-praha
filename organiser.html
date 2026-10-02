@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>ÖH Prague · Organiser tools</title>
+<meta name="theme-color" content="#1E2C66">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<style>:root{--navy:#1E2C66;--yel:#F5C800;--bg:#F6F7FB;--surface:#fff;--pale:#EEF1F7;--ink:#161B2E;--muted:#5A6378;--line:#E1E5EF;--head:#1E2C66;--ok:#E7F6EC;--okline:#7CC495;--okink:#14532D;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0F1530;--surface:#18214A;--pale:#131B3D;--ink:#EEF1F8;--muted:#A9B2CC;--line:#2A3566;--head:#E6EAF4;--ok:#123222;--okline:#2F7A4C;--okink:#B9F0CB}}
+:root[data-theme="dark"]{--bg:#0F1530;--surface:#18214A;--pale:#131B3D;--ink:#EEF1F8;--muted:#A9B2CC;--line:#2A3566;--head:#E6EAF4;--ok:#123222;--okline:#2F7A4C;--okink:#B9F0CB}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Manrope','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,textarea{font-family:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px}
+.top{position:sticky;top:0;z-index:10;background:var(--navy);color:#fff;box-shadow:0 6px 20px rgba(10,15,40,.18);padding-top:env(safe-area-inset-top,0px)}
+.top .wrap{padding-top:12px;padding-bottom:12px;display:flex;flex-direction:column;gap:10px}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pill{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border-radius:999px;background:#fff;color:#1E2C66;font-weight:700;font-size:14px;text-decoration:none}
+.priv{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--yel);border:1px solid var(--yel);border-radius:999px;padding:4px 10px}
+h1{margin:0;font-family:'Unbounded','Trebuchet MS',sans-serif;font-weight:800;font-size:20px}
+.tabs{display:flex;gap:4px;background:rgba(255,255,255,.12);padding:4px;border-radius:999px}
+.tab{flex:1;min-height:42px;border:0;border-radius:999px;background:transparent;color:#fff;font-weight:700;font-size:13px;cursor:pointer}
+.tab[aria-selected="true"]{background:#fff;color:#1E2C66}
+.cps{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -18px;padding:0 18px}
+.cps::-webkit-scrollbar{display:none}
+.cp{flex:0 0 auto;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap}
+.cp small{margin-left:6px;opacity:.85}
+.cp[aria-pressed="true"]{background:var(--yel);border-color:var(--yel);color:#1E2C66}
+.count{display:flex;align-items:center;gap:12px}
+.count b{font-family:'Unbounded',sans-serif;font-size:26px;color:var(--yel)}
+.count span{font-size:14px;color:#DCE2F0}
+.bar{flex:1;height:10px;border-radius:999px;background:rgba(255,255,255,.18);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--yel);border-radius:999px}
+main .wrap{padding-top:16px;padding-bottom:40px;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+details.card{display:block}
+details.card>*:not(summary){margin-top:10px}
+summary{min-height:44px;display:flex;align-items:center;font-weight:700;color:var(--head);cursor:pointer}
+.card h2{margin:0;font-family:'Unbounded',sans-serif;font-size:17px;color:var(--head)}
+.msg{font-size:14px;line-height:1.5;color:var(--muted);margin:0}
+.note,.empty{padding:14px;border-radius:12px;background:var(--pale);border:1px solid var(--line);color:var(--muted);font-size:15px;line-height:1.5}
+input[type=text],input[type=search],input[type=password],textarea{width:100%;min-height:48px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink);font-size:16px;padding:0 14px}
+textarea{min-height:120px;padding:12px;line-height:1.5}
+input:focus,textarea:focus{outline:none;border-color:var(--navy)}
+.row,.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row input{flex:1 1 200px}
+.tools input{flex:1 1 200px}
+.tbtn{min-height:48px;padding:0 16px;border-radius:12px;border:2px solid var(--navy);background:var(--surface);color:var(--head);font-weight:700;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.tbtn.pri,.tbtn[aria-pressed="true"]{background:var(--navy);color:#fff}
+.tbtn[disabled]{opacity:.5}
+.filebtn{position:relative;overflow:hidden}
+.filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.list{display:flex;flex-direction:column;gap:8px}
+.person{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:6px}
+.person.here{background:var(--ok);border-color:var(--okline)}
+.tick{flex:1;display:flex;align-items:center;gap:12px;min-height:52px;border:0;background:transparent;color:var(--ink);text-align:left;cursor:pointer;padding:0 6px;font-size:17px;font-weight:600}
+.box{width:30px;height:30px;border-radius:9px;border:2px solid var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.box svg{opacity:0}.person.here .box{background:#1F8A4C;border-color:#1F8A4C}.person.here .box svg{opacity:1}
+.person.here .tick{color:var(--okink)}
+.del,.ibtn{min-width:44px;height:44px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--muted);font-weight:700;cursor:pointer}
+.del.armed,.ibtn.armed{background:#B42318;border-color:#B42318;color:#fff;padding:0 10px}
+.ibtn[disabled]{opacity:.35}
+.crow{display:flex;gap:6px;align-items:center;margin-bottom:8px}
+.crow input{flex:1 1 auto;min-width:0}
+[hidden]{display:none!important}
+</style>
+<script src="/lib/jszip.min.js"></script>
+<script src="/lib/xlsx.mini.min.js"></script>
+</head>
+<body>
+<div class="top"><div class="wrap">
+<div class="brand"><a href="/" class="pill" aria-label="Back to the trip guide"><img src="/icons/apple-touch-icon.png" alt="" style="display:none"><span class="pilltxt">← Trip guide</span></a><span class="priv">ORGANISERS</span></div>
+<h1>Organiser tools</h1>
+<div class="tabs" role="tablist" id="tabs" hidden>
+<button type="button" class="tab" data-tab="hc" aria-selected="true">Headcount</button>
+<button type="button" class="tab" data-tab="rooms" aria-selected="false">Rooms</button>
+<button type="button" class="tab" data-tab="share" aria-selected="false">Share &amp; backup</button>
+</div>
+<div id="hcTop" hidden>
+<div class="cps" id="cps" role="group" aria-label="Which count"></div>
+<div class="count"><b id="cnt">0/0</b><div class="bar"><i id="bar"></i></div><span id="cntTxt"></span></div>
+</div>
+</div></div>
+
+<main><div class="wrap">
+
+<!-- PIN -->
+<div class="card" id="pinBox" hidden>
+<h2 id="pinTitle">Create your organiser PIN</h2>
+<p class="msg" id="pinHelp">Choose a PIN (at least 4 digits) to protect the tools on this phone. Everything you enter stays on this device and works without internet.</p>
+<input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN" aria-label="PIN">
+<input id="pin2" type="password" inputmode="numeric" autocomplete="off" placeholder="Repeat PIN" aria-label="Repeat PIN">
+<button type="button" class="tbtn pri" id="pinGo">Continue</button>
+<div class="msg" id="pinMsg"></div>
+</div>
+
+<!-- HEADCOUNT -->
+<div id="hcTab" hidden>
+<div class="tools">
+<input id="q" type="search" placeholder="Search a name" aria-label="Search a name" autocomplete="off">
+<button type="button" class="tbtn" id="onlyMissing" aria-pressed="false">Missing only</button>
+</div>
+<div class="list" id="list"></div>
+<details class="card"><summary>Add people</summary>
+<div class="row"><input id="one" type="text" placeholder="Full name" aria-label="Full name"><button type="button" class="tbtn pri" id="addOne">Add</button></div>
+<p class="msg">Or paste many names, one per line:</p>
+<textarea id="many" placeholder="Anna Kovács&#10;Lena Huber"></textarea>
+<div class="row"><button type="button" class="tbtn pri" id="addMany">Add all</button><button type="button" class="tbtn" id="fromRooms">Add everyone from the room list</button></div>
+<div class="msg" id="addMsg"></div>
+</details>
+<details class="card" id="countsBox"><summary>Manage counts (main events)</summary>
+<div id="clist"></div>
+<div class="row"><input id="newCount" type="text" placeholder="New count, e.g. Sun 10:00 · Breakfast" aria-label="New count"><button type="button" class="tbtn pri" id="addCount">Add</button></div>
+<div class="row"><button type="button" class="tbtn" id="resetCp">Untick all for the selected count</button></div>
+<div class="msg" id="cmsg"></div>
+</details>
+</div>
+
+<!-- ROOMS -->
+<div id="roomsTab" hidden>
+<div class="card">
+<h2>Room list</h2>
+<p class="msg">Paste the list (one room per line, like <b>Room 12: Anna Kovács, Lena Huber</b>) or upload an Excel/CSV file (room in the first column, names next to it, or one person per row).</p>
+<textarea id="roomText" placeholder="Room 12: Anna Kovács, Lena Huber&#10;Room 14: Max Bauer, Jakob Wolf"></textarea>
+<div class="row"><label class="tbtn filebtn">Upload Excel / CSV<input type="file" id="roomFile" accept=".xlsx,.xls,.csv,.txt"></label><button type="button" class="tbtn" id="roomPreview">Preview</button><button type="button" class="tbtn pri" id="roomSave" disabled>Save room list</button></div>
+<div class="note" id="roomStatus">No room list saved yet.</div>
+</div>
+<div class="card">
+<h2>Publish the rooms for the students</h2>
+<p class="msg">Builds the complete website with the saved room list inside. Then upload it in Cloudflare: Workers &amp; Pages → oeh-prague-trip → Create deployment → drop the zip → Save and Deploy. Best done on a laptop.</p>
+<div class="row"><button type="button" class="tbtn pri" id="zipBtn">Download website update (zip)</button></div>
+<div class="note" id="zipStatus" hidden></div>
+</div>
+</div>
+
+<!-- SHARE -->
+<div id="shareTab" hidden>
+<div class="card">
+<h2>Share with your co-organiser</h2>
+<p class="msg">Your data is saved on this device only. To give Patrycja (or yourself on another phone) the same people, counts, ticks and rooms: copy the code and send it via WhatsApp. She pastes it under "Import". Ticks are merged, the newest change wins.</p>
+<div class="row"><button type="button" class="tbtn pri" id="copyCode">Copy share code</button><button type="button" class="tbtn" id="shareCode">Share…</button></div>
+<textarea id="codeOut" readonly placeholder="The code appears here"></textarea>
+</div>
+<div class="card">
+<h2>Import</h2>
+<textarea id="codeIn" placeholder="Paste a share code here"></textarea>
+<div class="row"><button type="button" class="tbtn pri" id="importBtn">Import &amp; merge</button></div>
+<div class="msg" id="impMsg"></div>
+</div>
+<div class="card">
+<h2>Backup</h2>
+<div class="row"><button type="button" class="tbtn" id="backupBtn">Download backup file</button><label class="tbtn filebtn">Load backup file<input type="file" id="backupIn" accept=".json,application/json"></label></div>
+<div class="msg" id="bkMsg"></div>
+</div>
+<div class="card">
+<h2>This device</h2>
+<div class="row"><button type="button" class="tbtn" id="lockBtn">Lock now</button><button type="button" class="tbtn" id="changePin">Change PIN</button></div>
+</div>
+</div>
+
+</div></main>
+
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var KEY='oeh-org-v1', PINKEY='oeh-org-pin', UNLOCK='oeh-org-unlocked';
+  var DEFAULT=[{id:'bus1',label:'Sat 05:45 · Bus Krems'},{id:'tour1',label:'Sat 12:00 · Tour 1'},{id:'tour2',label:'Sat ~16:00 · Tour 2 Castle'},{id:'checkin',label:'Sat 18:00+ · Check-in'},{id:'bus2',label:'Sun 16:30 · Bus Prague'}];
+  var HEADERS="/OeH-Prague-Trip-Guide.html\n  Content-Disposition: attachment; filename=\"OeH-Prague-Trip-Guide.html\"\n  Cache-Control: no-cache\n/index.html\n  Cache-Control: no-cache\n/\n  Cache-Control: no-cache\n/sw.js\n  Cache-Control: no-cache\n/organiser.html\n  Cache-Control: no-cache\n/organiser.html\n  X-Robots-Tag: noindex\n";
+  var MANIFEST="{\n \"name\": \"\u00d6H Prague Trip Guide\",\n \"short_name\": \"\u00d6H Prague\",\n \"start_url\": \"/\",\n \"scope\": \"/\",\n \"display\": \"standalone\",\n \"background_color\": \"#1E2C66\",\n \"theme_color\": \"#1E2C66\",\n \"description\": \"\u00d6H IMC Krems trip to Prague, 10\u201311 October 2026\",\n \"icons\": [\n  {\n   \"src\": \"/icons/icon-192.png\",\n   \"sizes\": \"192x192\",\n   \"type\": \"image/png\"\n  },\n  {\n   \"src\": \"/icons/icon-512.png\",\n   \"sizes\": \"512x512\",\n   \"type\": \"image/png\"\n  },\n  {\n   \"src\": \"/icons/icon-512-maskable.png\",\n   \"sizes\": \"512x512\",\n   \"type\": \"image/png\",\n   \"purpose\": \"maskable\"\n  }\n ]\n}";
+  function load(){try{var d=JSON.parse(localStorage.getItem(KEY)||'null');if(d&&d.people)return d;}catch(e){}return {people:[],counts:DEFAULT.slice(),checks:{},rooms:[],roomsT:0,cur:'bus1'};}
+  var S=load();
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){alertBox('Could not save on this device (storage full or blocked).');}}
+  function alertBox(t){var m=$('cmsg')||$('addMsg');if(m)m.textContent=t;}
+  function norm(t){return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();}
+  function clean(t){return String(t==null?'':t).replace(/\s+/g,' ').trim();}
+  function esc(t){var d=document.createElement('div');d.textContent=t;return d.innerHTML;}
+  /* ---------- PIN ---------- */
+  function hash(p){
+    if(window.crypto&&crypto.subtle&&window.TextEncoder){return crypto.subtle.digest('SHA-256',new TextEncoder().encode('oeh-prague|'+p)).then(function(b){return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0');}).join('');});}
+    var h=0,s='oeh-prague|'+p;for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))|0;}return Promise.resolve('x'+h);
+  }
+  var hasPin=false;try{hasPin=!!localStorage.getItem(PINKEY);}catch(e){}
+  var changing=false;
+  function showPin(){
+    $('pinBox').hidden=false;$('tabs').hidden=true;$('hcTop').hidden=true;['hcTab','roomsTab','shareTab'].forEach(function(t){$(t).hidden=true;});
+    $('pin2').hidden=hasPin&&!changing; $('pinTitle').textContent=hasPin&&!changing?'Enter your organiser PIN':'Create your organiser PIN';
+    $('pinHelp').textContent=hasPin&&!changing?'This phone is locked. Enter the PIN you chose.':'Choose a PIN (at least 4 digits) to protect the tools on this phone. Everything you enter stays on this device and works without internet.';
+    $('pin').value='';$('pin2').value='';setTimeout(function(){$('pin').focus();},50);
+  }
+  function unlock(){try{sessionStorage.setItem(UNLOCK,'1');}catch(e){} $('pinBox').hidden=true;$('tabs').hidden=false;go(tab);}
+  $('pinGo').addEventListener('click',function(){
+    var p=$('pin').value.trim(); if(p.length<4){$('pinMsg').textContent='Use at least 4 digits.';return;}
+    if(hasPin&&!changing){hash(p).then(function(h){if(h===localStorage.getItem(PINKEY))unlock();else $('pinMsg').textContent='Wrong PIN. Try again.';});return;}
+    if(p!==$('pin2').value.trim()){$('pinMsg').textContent='The two PINs don’t match.';return;}
+    hash(p).then(function(h){try{localStorage.setItem(PINKEY,h);}catch(e){} hasPin=true;changing=false;$('pinMsg').textContent='';unlock();});
+  });
+  $('pin').addEventListener('keydown',function(e){if(e.key==='Enter')($('pin2').hidden?$('pinGo'):$('pin2')).focus(),$('pin2').hidden&&$('pinGo').click();});
+  $('pin2').addEventListener('keydown',function(e){if(e.key==='Enter')$('pinGo').click();});
+  $('lockBtn').addEventListener('click',function(){try{sessionStorage.removeItem(UNLOCK);}catch(e){}showPin();});
+  $('changePin').addEventListener('click',function(){changing=true;showPin();});
+  /* ---------- tabs ---------- */
+  var tab='hc';try{tab=sessionStorage.getItem('oeh-org-tab')||'hc';}catch(e){}
+  function go(t){tab=t;try{sessionStorage.setItem('oeh-org-tab',t);}catch(e){}
+    document.querySelectorAll('.tab').forEach(function(b){b.setAttribute('aria-selected',b.dataset.tab===t?'true':'false');});
+    $('hcTab').hidden=t!=='hc';$('hcTop').hidden=t!=='hc';$('roomsTab').hidden=t!=='rooms';$('shareTab').hidden=t!=='share';
+    if(t==='hc')render(); if(t==='share')makeCode();}
+  document.querySelectorAll('.tab').forEach(function(b){b.addEventListener('click',function(){go(b.dataset.tab);});});
+  /* ---------- headcount ---------- */
+  var missingOnly=false;
+  function chk(p,c){var x=S.checks[p.id]&&S.checks[p.id][c];return !!(x&&x.v);}
+  function setChk(p,c,v){S.checks[p.id]=S.checks[p.id]||{};S.checks[p.id][c]={v:v,t:Date.now()};save();}
+  function ensureCur(){if(!S.counts.some(function(c){return c.id===S.cur;}))S.cur=S.counts.length?S.counts[0].id:null;}
+  var check='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>';
+  function render(){
+    ensureCur(); var cps=$('cps'); cps.textContent='';
+    S.counts.forEach(function(c){var h=S.people.filter(function(p){return chk(p,c.id);}).length;
+      var b=document.createElement('button');b.type='button';b.className='cp';b.setAttribute('aria-pressed',c.id===S.cur?'true':'false');
+      b.appendChild(document.createTextNode(c.label));var sm=document.createElement('small');sm.textContent=h+'/'+S.people.length;b.appendChild(sm);
+      b.addEventListener('click',function(){S.cur=c.id;save();render();});cps.appendChild(b);});
+    var n=S.people.length,h=S.people.filter(function(p){return chk(p,S.cur);}).length;
+    $('cnt').textContent=h+'/'+n;$('bar').style.width=(n?h/n*100:0)+'%';$('cntTxt').textContent=n&&h===n?'everyone is here!':(n-h)+' missing';
+    var q=norm($('q').value), list=$('list'); list.textContent='';
+    var shown=S.people.filter(function(p){return (!q||norm(p.name).indexOf(q)!==-1)&&(!missingOnly||!chk(p,S.cur));});
+    if(!n){list.innerHTML='<div class="empty">No one on the list yet. Open "Add people" below, or add everyone from the room list.</div>';}
+    else if(!shown.length){list.innerHTML='<div class="empty">'+(missingOnly?'Nobody missing for this count.':'No name matches your search.')+'</div>';}
+    shown.forEach(function(p){
+      var row=document.createElement('div');row.className='person'+(chk(p,S.cur)?' here':'');
+      var t=document.createElement('button');t.type='button';t.className='tick';t.innerHTML='<span class="box">'+check+'</span><span></span>';t.lastChild.textContent=p.name;
+      t.addEventListener('click',function(){setChk(p,S.cur,!chk(p,S.cur));render();});
+      var d=document.createElement('button');d.type='button';d.className='del';d.textContent='✕';d.setAttribute('aria-label','Remove '+p.name);
+      d.addEventListener('click',function(){if(!d.dataset.arm){d.dataset.arm='1';d.textContent='Remove?';d.classList.add('armed');setTimeout(function(){if(d.isConnected){delete d.dataset.arm;d.textContent='✕';d.classList.remove('armed');}},3000);return;}
+        S.people=S.people.filter(function(x){return x.id!==p.id;});delete S.checks[p.id];save();render();});
+      row.appendChild(t);row.appendChild(d);list.appendChild(row);});
+    renderCounts();
+  }
+  function renderCounts(){
+    var box=$('clist'); if(box.contains(document.activeElement))return; box.textContent='';
+    S.counts.forEach(function(c,i){
+      var row=document.createElement('div');row.className='crow';
+      var inp=document.createElement('input');inp.type='text';inp.value=c.label;inp.setAttribute('aria-label','Count name');
+      inp.addEventListener('keydown',function(e){if(e.key==='Enter')inp.blur();});
+      inp.addEventListener('blur',function(){var v=clean(inp.value);if(v&&v!==c.label){c.label=v;save();render();}else inp.value=c.label;});
+      function mv(k){var j=i+k;if(j<0||j>=S.counts.length)return;var x=S.counts.splice(i,1)[0];S.counts.splice(j,0,x);save();render();}
+      var up=document.createElement('button');up.type='button';up.className='ibtn';up.textContent='↑';up.disabled=i===0;up.setAttribute('aria-label','Move up');up.addEventListener('click',function(){mv(-1);});
+      var dn=document.createElement('button');dn.type='button';dn.className='ibtn';dn.textContent='↓';dn.disabled=i===S.counts.length-1;dn.setAttribute('aria-label','Move down');dn.addEventListener('click',function(){mv(1);});
+      var del=document.createElement('button');del.type='button';del.className='ibtn danger';del.textContent='✕';del.setAttribute('aria-label','Delete count');
+      del.addEventListener('click',function(){if(S.counts.length<=1){$('cmsg').textContent='Keep at least one count.';return;}
+        if(!del.classList.contains('armed')){del.classList.add('armed');del.textContent='Delete?';setTimeout(function(){if(del.isConnected){del.classList.remove('armed');del.textContent='✕';}},3000);return;}
+        S.counts=S.counts.filter(function(x){return x.id!==c.id;});save();render();});
+      row.appendChild(inp);row.appendChild(up);row.appendChild(dn);row.appendChild(del);box.appendChild(row);});
+  }
+  $('q').addEventListener('input',render);
+  $('onlyMissing').addEventListener('click',function(){missingOnly=!missingOnly;this.setAttribute('aria-pressed',missingOnly?'true':'false');render();});
+  function addNames(names){
+    var ex={};S.people.forEach(function(p){ex[norm(p.name)]=1;});var o=S.people.reduce(function(m,p){return Math.max(m,p.order||0);},0)+1,added=0;
+    names.map(clean).forEach(function(n){if(n&&!ex[norm(n)]){ex[norm(n)]=1;S.people.push({id:'p'+norm(n).replace(/[^a-z0-9]+/g,'-'),name:n,order:o++});added++;}});
+    save();render();$('addMsg').textContent=added?('Added '+added+'.'):'Nothing new to add.';
+  }
+  $('addOne').addEventListener('click',function(){if(clean($('one').value)){addNames([$('one').value]);$('one').value='';}});
+  $('one').addEventListener('keydown',function(e){if(e.key==='Enter')$('addOne').click();});
+  $('addMany').addEventListener('click',function(){addNames($('many').value.split(/\r?\n|;/));$('many').value='';});
+  $('fromRooms').addEventListener('click',function(){var n=[];S.rooms.forEach(function(r){n=n.concat(r.people);});if(!n.length){$('addMsg').textContent='Save a room list first (Rooms tab).';return;}addNames(n);});
+  $('addCount').addEventListener('click',function(){var v=clean($('newCount').value);if(!v)return;var id='c'+Date.now().toString(36);S.counts.push({id:id,label:v});S.cur=id;$('newCount').value='';save();render();});
+  $('newCount').addEventListener('keydown',function(e){if(e.key==='Enter')$('addCount').click();});
+  $('resetCp').addEventListener('click',function(){var b=this,c=S.counts.filter(function(x){return x.id===S.cur;})[0];if(!c)return;
+    if(!b.dataset.arm){b.dataset.arm='1';b.textContent='Tap again to untick all for '+c.label;setTimeout(function(){delete b.dataset.arm;b.textContent='Untick all for the selected count';},4000);return;}
+    delete b.dataset.arm;b.textContent='Untick all for the selected count';S.people.forEach(function(p){if(chk(p,c.id))setChk(p,c.id,false);});render();});
+  /* ---------- rooms ---------- */
+  var parsed=null;
+  function fromRows(rows){var map={},order=[];
+    rows.forEach(function(r,i){var cells=r.map(clean).filter(function(c){return c!=='';});if(cells.length<2)return;
+      if(i===0&&/^(room|zimmer|szoba|nr|no)/i.test(cells[0])&&/(name|person|guest|student)/i.test(cells.slice(1).join(' ')))return;
+      var room=cells[0];if(!map[room]){map[room]=[];order.push(room);}
+      cells.slice(1).forEach(function(n){n.split(/\s*[,;]\s*/).forEach(function(p){p=clean(p);if(p&&map[room].indexOf(p)===-1)map[room].push(p);});});});
+    return order.map(function(r){return {room:/^\d+$/.test(r)?'Room '+r:r,people:map[r]};});}
+  function fromText(t){var lines=t.split(/\r?\n/).map(clean).filter(Boolean);
+    if(lines.length&&lines.every(function(l){return l.indexOf(':')!==-1;}))return fromRows(lines.map(function(l){var i=l.indexOf(':');return [l.slice(0,i),l.slice(i+1)];}));
+    var delim=/\t/.test(t)?'\t':(/;/.test(t)?';':',');return fromRows(lines.map(function(l){return l.split(delim);}));}
+  function toText(rs){return rs.map(function(r){return r.room+': '+r.people.join(', ');}).join('\n');}
+  function summary(rs){var n=rs.reduce(function(a,r){return a+r.people.length;},0);return '<b>'+rs.length+' rooms, '+n+' people</b>';}
+  function showSaved(){if(S.rooms.length){$('roomStatus').innerHTML='Saved on this device: '+summary(S.rooms)+(S.roomsT?' · '+new Date(S.roomsT).toLocaleString('en-GB'):'');if(!$('roomText').value)$('roomText').value=toText(S.rooms);}}
+  function preview(){parsed=fromText($('roomText').value);
+    if(!parsed.length){$('roomSave').disabled=true;$('roomStatus').innerHTML='Nothing recognised yet. Use one line per room, like <b>Room 12: Anna, Lena</b>.';return;}
+    $('roomStatus').innerHTML=summary(parsed)+' ready to save:<br>'+parsed.map(function(r){return '<b>'+esc(r.room)+'</b>: '+esc(r.people.join(', '));}).join('<br>');$('roomSave').disabled=false;}
+  $('roomPreview').addEventListener('click',preview);
+  $('roomText').addEventListener('input',function(){$('roomSave').disabled=true;});
+  $('roomSave').addEventListener('click',function(){if(!parsed||!parsed.length)return;S.rooms=parsed;S.roomsT=Date.now();save();this.disabled=true;$('roomStatus').innerHTML='Saved: '+summary(S.rooms)+'. Next: download the website update below.';});
+  $('roomFile').addEventListener('change',function(){var f=this.files&&this.files[0],inp=this;if(!f)return;
+    if(/\.(xlsx|xls)$/i.test(f.name)){
+      if(!window.XLSX){$('roomStatus').textContent='Excel reader not loaded. Save the file as CSV, or paste the list.';return;}
+      f.arrayBuffer().then(function(buf){var wb=XLSX.read(buf,{type:'array'});var rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});$('roomText').value=toText(fromRows(rows));preview();})
+      .catch(function(){$('roomStatus').textContent='That file could not be read. Try CSV or paste the list.';});
+    }else f.text().then(function(t){$('roomText').value=toText(fromText(t));preview();});
+    inp.value='';});
+  function roomsHTML(rs){function e(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');}
+    if(!rs||!rs.length)return '<p class="rs-empty">The room list is coming soon.</p>';
+    return '<ul class="rstatic">'+rs.map(function(r){return '<li><b>'+e(r.room)+'</b>: '+e((r.people||[]).join(', '))+'</li>';}).join('')+'</ul>';}
+  function get(path,bin){return fetch(path,{cache:'no-cache'}).catch(function(){return caches.match(path);}).then(function(r){if(!r||!r.ok)throw {code:'missing '+path};return bin?r.arrayBuffer():r.text();});}
+  window.aoBuildZip=function(rs){
+    return get('/index.html').then(function(idx){
+      if(!/var ROOMS = .*;\n/.test(idx))throw {code:'template'};
+      var html=idx.replace(/var ROOMS = .*;\n/,function(){return 'var ROOMS = '+JSON.stringify(rs).replace(/</g,'\\u003c')+';\n';})
+                  .replace(/(<details class="rooms-all"><summary>See the full room list<\/summary>)[\s\S]*?(<\/details>)/,function(m,a,b){return a+roomsHTML(rs)+b;});
+      var z=new JSZip(); z.file('index.html',html); z.file('OeH-Prague-Trip-Guide.html',html);
+      z.file('_headers',HEADERS); z.file('manifest.webmanifest',MANIFEST);
+      var bins=['/favicon.png','/icons/apple-touch-icon.png','/icons/icon-192.png','/icons/icon-512.png','/icons/icon-512-maskable.png','/lib/jszip.min.js','/lib/xlsx.mini.min.js'];
+      return Promise.all([get('/organiser.html'),get('/sw.js')].concat(bins.map(function(b){return get(b,true);}))).then(function(r){
+        z.file('organiser.html',r[0]); z.file('sw.js',r[1].replace(/const CACHE='[^']*';/,"const CACHE='oeh-prague-"+Date.now().toString(36)+"';"));
+        bins.forEach(function(b,i){z.file(b.slice(1),r[i+2]);});
+        return z.generateAsync({type:'blob',compression:'DEFLATE'});
+      });
+    });
+  };
+  $('zipBtn').addEventListener('click',function(){var b=this,st=$('zipStatus');st.hidden=false;
+    if(!window.JSZip){st.textContent='The zip tool did not load. Reload this page once with internet and try again.';return;}
+    b.disabled=true;st.textContent='Building the website…';
+    window.aoBuildZip(S.rooms).then(function(blob){
+      var url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='oeh-prague-trip-site.zip';document.body.appendChild(a);a.click();
+      setTimeout(function(){a.remove();URL.revokeObjectURL(url);},5000);
+      st.innerHTML='Downloaded <b>oeh-prague-trip-site.zip</b>'+(S.rooms.length?' with '+summary(S.rooms):' (no room list saved yet)')+'. Upload it in Cloudflare as a new deployment.';
+    }).catch(function(e){st.textContent='Could not build the zip ('+((e&&e.code)||'error')+'). Open this page once with internet, then try again.';}).then(function(){b.disabled=false;});});
+  /* ---------- share / backup ---------- */
+  function pack(){return 'OEH1:'+btoa(unescape(encodeURIComponent(JSON.stringify({people:S.people,counts:S.counts,checks:S.checks,rooms:S.rooms,roomsT:S.roomsT}))));}
+  function makeCode(){$('codeOut').value=pack();}
+  $('copyCode').addEventListener('click',function(){var b=this;makeCode();var v=$('codeOut').value;
+    function done(){b.textContent='Copied!';setTimeout(function(){b.textContent='Copy share code';},2000);}
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(v).then(done,function(){$('codeOut').select();document.execCommand('copy');done();});
+    else{$('codeOut').select();document.execCommand('copy');done();}});
+  if(navigator.share){$('shareCode').addEventListener('click',function(){makeCode();navigator.share({title:'ÖH Prague organiser data',text:$('codeOut').value}).catch(function(){});});}else $('shareCode').hidden=true;
+  function merge(d){
+    if(!d||!Array.isArray(d.people))throw 0;
+    var byKey={};S.people.forEach(function(p){byKey[norm(p.name)]=p;});var o=S.people.reduce(function(m,p){return Math.max(m,p.order||0);},0)+1,added=0;
+    var idMap={};
+    d.people.forEach(function(p){var k=norm(p.name);if(!k)return;if(!byKey[k]){var np={id:'p'+k.replace(/[^a-z0-9]+/g,'-'),name:clean(p.name),order:o++};S.people.push(np);byKey[k]=np;added++;}idMap[p.id]=byKey[k].id;});
+    (d.counts||[]).forEach(function(c){if(c&&c.id&&!S.counts.some(function(x){return x.id===c.id;}))S.counts.push({id:String(c.id),label:String(c.label)});});
+    var ch=0;Object.keys(d.checks||{}).forEach(function(pid){var lid=idMap[pid];if(!lid)return;var src=d.checks[pid];S.checks[lid]=S.checks[lid]||{};
+      Object.keys(src).forEach(function(cid){var a=S.checks[lid][cid],b=src[cid];if(b&&(!a||(b.t||0)>(a.t||0))){S.checks[lid][cid]={v:!!b.v,t:b.t||Date.now()};ch++;}});});
+    var rm=false;if(Array.isArray(d.rooms)&&d.rooms.length&&(d.roomsT||0)>(S.roomsT||0)){S.rooms=d.rooms;S.roomsT=d.roomsT;rm=true;}
+    save();return 'Merged: '+added+' new people, '+ch+' tick updates'+(rm?', newer room list':'')+'.';
+  }
+  function unpack(t){t=String(t||'').trim();var i=t.indexOf('OEH1:');if(i===-1)throw 0;return JSON.parse(decodeURIComponent(escape(atob(t.slice(i+5).replace(/\s/g,'')))));}
+  $('importBtn').addEventListener('click',function(){try{$('impMsg').textContent=merge(unpack($('codeIn').value));$('codeIn').value='';showSaved();render();}catch(e){$('impMsg').textContent='That doesn’t look like a share code. Copy the whole message starting with OEH1:';}});
+  $('backupBtn').addEventListener('click',function(){var blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download='oeh-prague-organiser-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(url);},4000);$('bkMsg').textContent='Backup saved to your downloads.';});
+  $('backupIn').addEventListener('change',function(){var f=this.files&&this.files[0];if(!f)return;f.text().then(function(t){try{$('bkMsg').textContent=merge(JSON.parse(t));showSaved();render();}catch(e){$('bkMsg').textContent='That file is not an organiser backup.';}});this.value='';});
+  /* ---------- start ---------- */
+  showSaved();
+  var unlocked=false;try{unlocked=sessionStorage.getItem(UNLOCK)==='1';}catch(e){}
+  if(hasPin&&unlocked){$('tabs').hidden=false;go(tab);}else showPin();
+  window.addEventListener('storage',function(e){if(e.key===KEY){S=load();render();showSaved();}});
+})();
+
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){navigator.serviceWorker.register('/sw.js').catch(function(){});}
+</script>
+</body>
+</html>

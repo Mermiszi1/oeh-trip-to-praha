@@ -7,3 +7,7 @@
   Cache-Control: no-cache
 /sw.js
   Cache-Control: no-cache
+/organiser.html
+  Cache-Control: no-cache
+/organiser.html
+  X-Robots-Tag: noindex
